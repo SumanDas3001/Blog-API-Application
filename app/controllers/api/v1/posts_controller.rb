@@ -1,4 +1,4 @@
-module Api::V1
+module Api::V1 
   class PostsController < ApplicationController
     include CommonUserHelper
     include Swagger::Blocks
