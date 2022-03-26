@@ -1,0 +1,44 @@
+# Files in the config/locales directory are used for internationalization
+# and are automatically loaded by Rails. If you want to use locales other
+# than English, add the necessary files in this directory.
+#
+# To use the locales, use `I18n.t`:
+#
+#     I18n.t 'hello'
+#
+# In views, this is aliased to just `t`:
+#
+#     <%= t('hello') %>
+#
+# To use a different locale, set it with `I18n.locale`:
+#
+#     I18n.locale = :es
+#
+# This would use the information in config/locales/es.yml.
+#
+# The following keys must be escaped otherwise they will not be retrieved by
+# the default I18n backend:
+#
+# true, false, on, off, yes, no
+#
+# Instead, surround them with single quotes.
+#
+# en:
+#   'true': 'foo'
+#
+# To learn more, please read the Rails Internationalization guide
+# available at https://guides.rubyonrails.org/i18n.html.
+
+en:
+  user_logout_success: 'Logout successfully'
+  password_not_match: 'Password not matched!'
+  email_not_match: 'Email not found!'
+  logged_in_success: 'Login successfully'
+  post_create_success: 'Post created successfully'
+  post_list_success: 'Post List'
+  post_not_found: 'Post not found'
+  post_show_data: 'Post data'
+  create_comment: 'Comment created successfully'
+  post_like_successfully: "Post like successfully"
+  comment_like_successfully: "Comment like successfully"
+  user_success_list: 'List of all users(having at least one post) and count of their'
