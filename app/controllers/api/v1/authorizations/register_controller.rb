@@ -6,11 +6,11 @@ module Api::V1
       include JwtAuthenticate
       include Swagger::Blocks
 
-      swagger_path "/register" do
+      swagger_path '/register' do
         operation :post do
           key :consumes, ['multipart/form-data']
-          key :summary, "Api for user signup"
-          key :description, "Api for user signup"
+          key :summary, 'Api for user signup'
+          key :description, 'Api for user signup'
           key :tags, [
             'Authentication'
           ]
@@ -37,13 +37,13 @@ module Api::V1
             key :type, :string
           end
           response 200 do
-            key :description, "Successfull"
+            key :description, 'Successfull'
             schema do
               key :'$ref', :register_user
             end
           end
           response 400 do
-            key :description, "Error"
+            key :description, 'Error'
             schema do
               key :'$ref', :common_response_model
             end
@@ -52,19 +52,17 @@ module Api::V1
       end
 
       def create
-        begin
-          ActiveRecord::Base.transaction do
-            @user = ::User.new(user_params)
-            if @user.save 
-              success_response("#{I18n.t 'employee_create_success'}")
-            else
-              error_model(400, @user.errors.full_messages.join(','))
-              raise ActiveRecord::Rollback
-            end
+        ActiveRecord::Base.transaction do
+          @user = ::User.new(user_params)
+          if @user.save! 
+            success_response(I18n.t('employee_create_success'))
+          else
+            error_model(400, @user.errors.full_messages.join(','))
+            raise ActiveRecord::Rollback
           end
-        rescue Exception => e
-          error_model(403, e.message)
         end
+      rescue StandardError => e
+        error_model(403, e.message)
       end
 
       private

@@ -6,14 +6,14 @@ module Api
 
       before_action :authorize_user!
 
-      swagger_path "/comments" do
+      swagger_path '/comments' do
         operation :post do
-          key :summary, "Api for write comment"
-          key :description, "Api for write comment"
+          key :summary, 'Api for write comment'
+          key :description, 'Api for write comment'
           key :tags, ['Comment']
           parameter do
             key :name, :Authorization
-            key :description, "Enter Authorization Key"
+            key :description, 'Enter Authorization Key'
             key :type, :string
             key :in, :header
             key :required, true
@@ -33,13 +33,13 @@ module Api
             key :type, :string
           end
           response 200 do
-            key :description, "Successfull"
+            key :description, 'Successfull'
             schema do
               key :'$ref', :comment_model
             end
           end
           response 400 do
-            key :description, "Error"
+            key :description, 'Error'
             schema do
               key :'$ref', :common_response_model
             end
@@ -61,33 +61,30 @@ module Api
       end
 
       def create
-        begin
-          @post = Post.find(params[:post_id])
-          unless @post.present?
-            error_model(404, "#{I18n.t 'post_not_found'}")
-            return
-          end
-          @comment = @post.comments.create(comment_params)
+        @post = Post.find(params[:post_id])
+        if @post.blank?
+          error_model(404, I18n.t('post_not_found'))
+        else
+          @comment = @post.comments.create!(comment_params)
           @comment.user_id = @user.id
-          if @comment.save
-            singular_success_model(200, "#{I18n.t 'create_comment'}", create_comment_response(@comment))
-          else
-            error_model(400, @comment.errors.full_messages.join(','))
-          end
-        rescue Exception => e
-          error_model(403, e.message)
         end
+        if @comment.save
+          singular_success_model(200, I18n.t('create_comment'), create_comment_response(@comment))
+        else
+          error_model(400, @comment.errors.full_messages.join(','))
+        end
+      rescue StandardError => e
+        error_model(403, e.message)
       end
 
-
-      swagger_path "/comments/{id}/like_comment" do
+      swagger_path '/comments/{id}/like_comment' do
         operation :post do
-          key :summary, "Api for like comment"
-          key :description, "Api for like comment"
+          key :summary, 'Api for like comment'
+          key :description, 'Api for like comment'
           key :tags, ['Comment']
           parameter do
             key :name, :Authorization
-            key :description, "Enter Authorization Key"
+            key :description, 'Enter Authorization Key'
             key :type, :string
             key :in, :header
             key :required, true
@@ -100,13 +97,13 @@ module Api
             key :type, :integer
           end
           response 200 do
-            key :description, "Successfull"
+            key :description, 'Successfull'
             schema do
               key :'$ref', :common_response_model
             end
           end
           response 400 do
-            key :description, "Error"
+            key :description, 'Error'
             schema do
               key :'$ref', :common_response_model
             end
@@ -115,23 +112,20 @@ module Api
       end
   
       def like_comment
-        begin
-          @comment = Comment.find_by(id: params[:id]) rescue []
-          unless @comment.present?
-            error_model(404, "#{I18n.t 'post_not_found'}")
-            return
-          end
-  
+        @comment = Comment.find_by(id: params[:id])
+        if @comment.blank?
+          error_model(404, I18n.t('post_not_found'))
+        else
           @like_comment = @comment.likes.new(likeable: @comment, user_id: @user.id)
-          if @like_comment.save!
-            success_model(200, "#{I18n.t 'comment_like_successfully'}")
-          else
-            error_model(400, @like_comment.errors.full_messages.join(','))
-          end 
-  
-        rescue Exception => e
-          error_model(403, e.message)
         end
+
+        if @like_comment.save!
+          success_model(200, I18n.t('comment_like_successfully'))
+        else
+          error_model(400, @like_comment.errors.full_messages.join(','))
+        end
+      rescue StandardError => e
+        error_model(403, e.message)
       end
 
       private

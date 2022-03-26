@@ -2,7 +2,7 @@ class SwaggerGlobalModel
   include Swagger::Blocks
 
   swagger_schema :common_response_model do
-    key :required, [:response_code, :response_message]
+    key :required, %i[response_code response_message]
     property :response_code do
       key :type, :integer
       key :format, :int32
@@ -13,7 +13,7 @@ class SwaggerGlobalModel
   end
 
   swagger_schema :register_user do
-    key :required, [:response_code, :response_message]
+    key :required, %i[response_code response_message]
     property :response_code do
       key :type, :integer
     end
@@ -25,7 +25,7 @@ class SwaggerGlobalModel
     end
   end
   swagger_schema :user do
-    key :required, [:user_id, :email, :name, :access_token, :token_type]
+    key :required, %i[user_id email name access_token token_type]
     property :user_id do
       key :type, :integer
     end
@@ -44,7 +44,7 @@ class SwaggerGlobalModel
   end
 
   swagger_schema :post_model do
-    key :required, [:response_code, :response_message]
+    key :required, %i[response_code response_message]
     property :response_code do
       key :type, :integer
     end

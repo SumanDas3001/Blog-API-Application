@@ -8,10 +8,10 @@ module Api::V1
 
       before_action :authorize_user!, only: [:revoke]
 
-      swagger_path "/login" do
+      swagger_path '/login' do
         operation :post do
-          key :summary, "Api for user sign_in"
-          key :description, "Api for user sign_in"
+          key :summary, 'Api for user sign_in'
+          key :description, 'Api for user sign_in'
           key :tags, [
             'Authentication'
           ]
@@ -31,13 +31,13 @@ module Api::V1
             key :type, :string
           end
           response 200 do
-            key :description, "Successfull"
+            key :description, 'Successfull'
             schema do
               key :'$ref', :register_user
             end
           end
           response 400 do
-            key :description, "Error"
+            key :description, 'Error'
             schema do
               key :'$ref', :common_response_model
             end
@@ -47,46 +47,46 @@ module Api::V1
 
       def create
         @response = {}
-        @user = ::User.find_by("email = ?", params[:email])
-        
-        unless @user.present?
-          error_model(400, "#{I18n.t 'email_not_match'}")
+        @user = ::User.find_by('email = ?', params[:email])
+
+        unless @user.exist?
+          error_model(400, I18n.t('email_not_match'))
           return
         end
 
-        if @user.present? && resource_owner_from_credentials(@user.email)
+        if resource_owner_from_credentials(@user.email)
           @response = auth_headers(@response, @user)
           @response[:status] = :ok
         else
-          error_model(400, "#{I18n.t 'password_not_match'}")
+          error_model(400, I18n.t('password_not_match'))
           return
         end
         create_response
       end
 
-      swagger_path "/revoke" do
+      swagger_path '/revoke' do
         operation :delete do
-          key :summary, "Api for user logout"
-          key :description, "Api for user logout"
+          key :summary, 'Api for user logout'
+          key :description, 'Api for user logout'
           key :tags, ['Authentication']
 
           parameter do
             key :name, :Authorization
-            key :description, "Enter Authorization Key"
+            key :description, 'Enter Authorization Key'
             key :type, :string
             key :in, :header
             key :required, true
           end
 
           response 200 do
-            key :description, "Success"
+            key :description, 'Success'
             schema do
               key :'$ref', :common_response_model
             end
           end
 
           response 400 do
-            key :description, "Error"
+            key :description, 'Error'
             schema do
               key :'$ref', :common_response_model
             end
@@ -97,23 +97,23 @@ module Api::V1
       def revoke
         user, payload = fetch_user_payload_from_token
         User.revoke_jwt(payload, user)
-        success_model(200, "#{I18n.t 'user_logout_success'}")
+        success_model(200, I18n.t('user_logout_success'))
       end
 
   
-      swagger_path "/user_list" do
+      swagger_path '/user_list' do
         operation :get do
-          key :summary, "List of all users(having at least one post) and count of their"
-          key :description, "List of all users(having at least one post) and count of their"
+          key :summary, 'List of all users(having at least one post) and count of their'
+          key :description, 'List of all users(having at least one post) and count of their'
           key :tags, ['Authentication']
           response 200 do
-            key :description, "Successfull"
+            key :description, 'Successfull'
             schema do
               key :'$ref', :user_list_data
             end
           end
           response 400 do
-            key :description, "Error"
+            key :description, 'Error'
             schema do
               key :'$ref', :common_response_model
             end
@@ -122,7 +122,7 @@ module Api::V1
       end
 
       swagger_schema :user_list_data do
-        key :required, [:response_code, :response_message]
+        key :required, %i[response_code response_message]
         property :response_code do
           key :type, :integer
         end
@@ -138,34 +138,31 @@ module Api::V1
       end
   
       def user_list
-        begin
-          response = []
-          @list_of_all_user_with_post = User&.includes(:posts).order('created_at DESC') rescue []
-          
-          if @list_of_all_user_with_post.present?
-            @list_of_all_user_with_post.map{|user|
-              response << {
-                user_id: user.id,
-                number_of_posts: user&.posts.count || 0
-              }
+        response = []
+        @list_of_all_user_with_post = User&.includes(:posts)&.order('created_at DESC')
+        if @list_of_all_user_with_post.present?
+          @list_of_all_user_with_post.map do |user|
+            response << {
+              user_id: user.id,
+              number_of_posts: user&.posts&.count || 0
             }
-
-            singular_success_model(200, "#{I18n.t 'user_success_list'}", response)
-          else
-            error_model(404, "#{I18n.t 'post_not_found'}")
           end
-        rescue Exception => e
-          error_model(403, e.message)
+
+          singular_success_model(200, I18n.t('user_success_list'), response)
+        else
+          error_model(404, I18n.t('post_not_found'))
         end
+      rescue StandardError => e
+        error_model(403, e.message)
       end
-    
 
       private
 
       def resource_owner_from_credentials(email)
         user = ::User.find_for_database_authentication(email: email)
         return if user.blank?
-        return_user = ( user&.valid_for_authentication? { user.valid_password?(params[:password]) } )
+
+        return_user = (user&.valid_for_authentication? { user.valid_password?(params[:password]) })
         user if return_user
       end
 
@@ -175,13 +172,11 @@ module Api::V1
         elsif @response[:status].to_s == 'unauthorized'
           fetch_unauthorized_response
         else
-          login_criteria = after_database_authentication(@user)
+          login_criteria = after_database_authentication
           if login_criteria[:success] == true
-            p @response
-            render json: user_general_info(@user, @response[:body][:access_token], "#{I18n.t 'logged_in_success'}")
-          else login_criteria[:success] == false
+            render(json: user_general_info(@user, @response[:body][:access_token], I18n.t('logged_in_success')))
+          elsif login_criteria[:success] == false
             error_model(400, login_criteria[:message])
-            return
           end
         end
       end
@@ -192,8 +187,8 @@ module Api::V1
         unauthorized_401_error(401, @response[:error])
       end
 
-      def after_database_authentication(user)
-        return {success:  true}
+      def after_database_authentication
+        return { success: true }
       end
     end
   end

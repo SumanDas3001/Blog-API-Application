@@ -1,3 +1,6 @@
+
+![Blog API Documentation](public/blog_api_app.png?raw=true "Blog API Documentation")
+
 ## Design and Develop a Rails blog API application where users can
 * Create and read posts API
 * Comment on posts API
