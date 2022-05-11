@@ -38,6 +38,12 @@ group :development, :test do
   gem 'rspec-rails'
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
+
+  # Security tools
+  gem 'brakeman'
+  gem 'bundler-audit'
+  gem 'ruby_audit'
+
   # enforce rails best practice with rubocop
   gem 'rubocop', '~> 1.18.0', require: false
   gem 'rubocop-performance', '~> 1.11.0', require: false
